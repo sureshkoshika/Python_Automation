@@ -1,0 +1,35 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+# Set up Selenium options
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+
+
+
+chromedriver_path = r'C:\chromedriver.exe'
+# here Install chrome driver in your pc and copy the path address of the dhromer driver and paste in above path
+service = Service(chromedriver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# List of Amazon PDP  URLs to check
+urls = ['https://www.amazon.com/dp/B07D4GPJ6N?th=1&psc=1',
+'https://www.amazon.co.uk/dp/B072JZ9J83?th=1',
+'https://www.amazon.ca/dp/B072JZ9J83']
+
+for url in urls:
+    # Navigate to the Amazon product page
+    driver.get(url)
+    
+    # Wait for the page to load and check if there are any promotions
+    if 'promotion' in driver.page_source:
+        # If there are promotions/coupons, skips to the next URL
+        continue
+    else:
+        # If there are no promotions, return the web link as putput
+        print(f"No promotions found on {url}")
+
+# Quit the browser
+driver.quit()
