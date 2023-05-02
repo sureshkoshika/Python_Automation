@@ -1,0 +1,33 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+# Set up Selenium options
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+
+# Set up  ChromeDriver service and open the browser
+
+chromedriver_path = r'C:\chromedriver.exe'
+# Install chrome driver in your pc and copy the path address of the chrome driver and paste in above path
+service = Service(chromedriver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# List of Amazon PDP URLs to check
+urls = ['https://www.amazon.com/dp/B0BRXXW38L?th=1&psc=1']
+
+for url in urls:
+    # Navigate to the Amazon product page
+    driver.get(url)
+    
+    # Wait for the page to load and check if there are any promotions
+    if 'Verified by Transparency' in driver.page_source:
+        # If there are badge, skips to the next URL
+        continue
+    else:
+        # If there are no promotions, return the web link as putput
+        print(f"No badge found on {url}")
+
+# Quit the browser
+driver.quit()
