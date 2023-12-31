@@ -1,0 +1,14 @@
+import pandas as pd
+
+# Reads the Excel file from the given folder
+excel_file_path = r'C:\Users\kossures\Documents\filename.xlsx'
+input_data = pd.read_excel(excel_file_path)
+
+# this part Unpivots the raw data
+unpivoted_data = pd.melt(input_data, id_vars=['gl_name','pl_name','channel'], var_name='Date', value_name='Value')
+
+# this creates a new CSV file for the unpivoted data from the raw sheet
+output_csv_path = r'C:\Users\kossures\Documents\finlename-unpivot.csv'
+unpivoted_data.to_csv(output_csv_path, index=False)
+
+print("Unpivoted data has been written to the new CSV file.")
