@@ -20,7 +20,7 @@ urls = ['https://www.amazon.com/dp/B07D4GPJ6N?th=1&psc=1',
 'https://www.amazon.ca/dp/B072JZ9J83']
 
 for url in urls:
-    # Navigate to the Amazon product page
+    # Navigate to the Amazon product Description page
     driver.get(url)
     
     # Wait for the page to load and check if there are any promotions
