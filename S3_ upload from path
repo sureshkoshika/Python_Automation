@@ -1,0 +1,15 @@
+## upload file directly to s3 without signing into AWS console
+import boto3
+
+aws_access_key_id = 'xxxxxxxkey'
+aws_secret_access_key = 'secreatkeyxxxxxxxxxxxxxxxxxx'
+aws_region = 'eu-west-1'
+
+bucket_name = 'my_bucket'
+object_key = 'objectfile_2024_week_47.csv'  
+local_file_path = 'C:/Users/suresh/Desktop/Table Upload/file_2024_week_47.csv'  # Path to the file you want to upload
+
+s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_region)
+
+with open(local_file_path, 'rb') as file:
+    s3_client.upload_fileobj(file, bucket_name, object_key, ExtraArgs={'ACL': 'bucket-owner-full-control'})
