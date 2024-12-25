@@ -1,0 +1,56 @@
+## AIm to automate the forecast upload process
+
+import pandas as pd
+from datetime import datetime
+
+# AFC Reports Script
+
+# reading files
+excel_file_path = r'C:\Users\kossures\Documents\AMXL\BI\AFC REPORTS\base files\working_folder\data_pull_tool.xlsx'
+
+# Process sheet 'shipouts_gl_all'
+input_data_gl = pd.read_excel(excel_file_path, sheet_name='shipouts_gl_all')
+filtered_data_gl = input_data_gl[input_data_gl['site_id'] != 0]
+unpivoted_data_gl = pd.melt(filtered_data_gl, id_vars=['site_id', 'gl'], var_name='forecast_date', value_name='forecast_value')
+unpivoted_data_gl['forecast_type'] = 'shipouts_gl_all'
+unpivoted_data_gl.rename(columns={'site_id': 'warehouse_id'}, inplace=True)
+
+# Process sheet 'NWD'
+input_data_nwd = pd.read_excel(excel_file_path, sheet_name='NWD')
+filtered_data_nwd = input_data_nwd[input_data_nwd['site_id'] != 0]
+unpivoted_data_nwd = pd.melt(filtered_data_nwd, id_vars=['site_id', 'gl'], var_name='forecast_date', value_name='forecast_value')
+unpivoted_data_nwd['forecast_type'] = 'NWD'
+unpivoted_data_nwd.rename(columns={'site_id': 'warehouse_id'}, inplace=True)
+
+# Process sheet 'shipouts_sc'
+input_data_sc = pd.read_excel(excel_file_path, sheet_name='shipouts_sc')
+filtered_data_sc = input_data_sc[input_data_sc['site_id'] != 0]
+unpivoted_data_sc = pd.melt(filtered_data_sc, id_vars=['site_id', 'gl'], var_name='forecast_date', value_name='forecast_value')
+unpivoted_data_sc['forecast_type'] = 'shipouts_sc'
+unpivoted_data_sc.rename(columns={'site_id': 'warehouse_id'}, inplace=True)
+
+# Merge all unpivoted data into a single DataFrame
+merged_data = pd.concat([unpivoted_data_gl, unpivoted_data_nwd, unpivoted_data_sc])
+
+# Add new columns to align with table DDL
+current_date = datetime.now().strftime('%Y-%m-%d')
+merged_data['pl'] = 'pl'
+merged_data['gl_code'] = 0
+merged_data['others'] = 'others'
+merged_data['channel'] = 'AFC'
+merged_data['upload_date'] = current_date
+merged_data['sort_center'] = 'sort_center'
+
+#  date columns are in 'YYYY-MM-DD' format
+merged_data['forecast_date'] = pd.to_datetime(merged_data['forecast_date']).dt.strftime('%Y-%m-%d')
+merged_data['upload_date'] = pd.to_datetime(merged_data['upload_date']).dt.strftime('%Y-%m-%d')
+
+# Ordering coloumns so S3 wont throw error
+column_order = ['forecast_date', 'gl', 'pl', 'warehouse_id', 'sort_center', 'gl_code', 'others', 'forecast_type', 'channel', 'forecast_value', 'upload_date']
+merged_data = merged_data.reindex(columns=column_order)
+
+# Save the merged data to a CSV file and push it back same folder
+merged_csv_path = r'C:\Users\kossures\Documents\AMXL\BI\AFC REPORTS\base files\working_folder\AFC_NWD_SHIPOUT_FORECAST.csv'
+merged_data.to_csv(merged_csv_path, index=False)
+
+print("All sheets have been processed, date columns formatted, and merged into a single CSV file.")
